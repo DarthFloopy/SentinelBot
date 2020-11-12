@@ -218,7 +218,12 @@ const alertStaff = (message, client) => {
   ];
   onlinestaff.forEach((element) => {
     element[1]
-      .send(`**${message}**\n ${onlinestaff.map((el) => el[1]).join("\n")}`)
+      .send({
+        embed: {
+          title: `**${message}**`,
+          description: `${onlinestaff.map((el) => el[1]).join("\n")}`
+        }
+      })
       .catch((e) => console.error);
   });
 };

@@ -139,7 +139,12 @@ client.on("message", async (message) => {
 
   if (triggers.includes(command)) {
     message.channel
-      .send(`Checking server for players, please wait...`)
+      .send({
+        embed: {
+          title: "**Checking for players**",
+          description: "Checking server for players, please wait..."
+        }
+      })
       .then(async (m) => {
         await ping()
           .then((s) => {
@@ -225,30 +230,44 @@ client.on("message", async (message) => {
         if (votes.hasOwnProperty(args[1])) {
           delete votes[args[1]];
           saveVotes();
-          message.channel.send(`Removed the application for **${args[1]}**`);
+          message.channel.send({
+            embed: {
+              title: "**INFO**",
+              description: `Removed the application for **${args[1]}**`
+            }
+          });
         } else {
-          message.channel.send(
-            `No application found for **${args[1]}**\n**Failed to delete**`
-          );
+          message.channel.send({
+            embed: {
+              title: "**INFO**",
+              description: `No application found for **${args[1]}**\n**Failed to delete**`
+            }
+          });
         }
       } else {
         registerApplication(message, args);
       }
     } else {
       if (votes.hasOwnProperty(args[0])) {
-        message.channel.send(
-          `**ALL VOTES FOR ${args[0]}**\n- ${Object.entries(votes[args[0]])
-            .map((e) => `${e[0]}: ${e[1]}`)
-            .join("\n- ")}`
-        );
+        message.channel.send({
+          embed: {
+            title: `**ALL VOTES FOR ${args[0]}**`,
+            description: `- ${Object.entries(votes[args[0]])
+              .map((e) => `${e[0]}: ${e[1]}`)
+              .join("\n- ")}`
+          }
+        });
       } else {
-        message.channel.send(
-          `**No applications found for ${
-            args[0]
-          }!**\nPick a value from the following list: \n- ${Object.keys(
-            votes
-          ).join("\n- ")}`
-        );
+        message.channel.send({
+          embed: {
+            title: `**No applications found for ${
+              args[0]
+            }!**`,
+            description: `Pick a value from the following list: \n- ${Object.keys(
+              votes
+            ).join("\n- ")}`
+          }
+        });
       }
     }
   } else if (command == "help") {
@@ -398,7 +417,12 @@ client.on("message", async (message) => {
           u.id == args
       );
     }
-    if (!user) return message.channel.send("Could not find this user");
+    message.channel.send({
+      embed: {
+        title: "Error",
+        description: "Could not find this user"
+      }
+    });
     var nickname = user.nickname;
     var joined = user.joinedAt.toString().substring(4, 15);
     var created = user.user.createdAt.toString().substring(4, 15);
@@ -508,13 +532,21 @@ client.on("message", async (message) => {
       "guildMemberAdd",
       message.member || message.guild.fetchMember(message.author)
     );
-    message.channel.send("I added a fake join");
+    message.channel.send({
+      embed: {
+        description: "I added a fake join"
+      }
+    });
   } else if (
     command === "fakealert" &&
     client.admins.includes(message.author.id)
   ) {
     alertStaff(message);
-    message.channel.send("fake alerted");
+    message.channel.send({
+      embed: {
+        description: "fake alerted"
+      }
+    });
   } else if (command === "invite") {
     message.channel
       .createInvite({
@@ -546,20 +578,29 @@ client.on("message", async (message) => {
   ) {
     if (args.length === 3) {
       if (message.mentions.members.size > 1 || args[1].startsWith("<@!")) {
-        return message.channel.send(
-          `**Error:**\n too much tagged users please use **!promote \`[tagged user]\` \`[username]\` \`[role]\`**`
-        );
+        return message.channel.send({
+          embed: {
+            title: "**Error**",
+            description: `too much tagged users please use **!promote \`[tagged user]\` \`[username]\` \`[role]\`**`
+          }
+        });
       } else if (message.mentions.members.size === 1) {
         promote(message.mentions.members.first(), args[1], args[2], message);
       } else {
-        return message.channel.send(
-          `**Error:**\n no tagged user (@user), please use **!promote \`[tagged user]\` \`[username]\` \`[role]\`**`
-        );
+        return message.channel.send({
+          embed: {
+            title: "**Error**",
+            description: `no tagged user (@user), please use **!promote \`[tagged user]\` \`[username]\` \`[role]\`**`
+          }
+        });
       }
     } else {
-      return message.channel.send(
-        `**Error:**\n invalid amount of arguments, please use **!promote \`[tagged user]\` \`[username]\` \`[role]\`**`
-      );
+      return message.channel.send({
+        embed: {
+          title: "**Error**",
+          description: `invalid amount of arguments, please use **!promote \`[tagged user]\` \`[username]\` \`[role]\`**`
+        }
+      });
     }
     //} else if (command === "1.16" || command == "update") {
     //message.channel.send({ embed: UpdateEmbed }).catch(console.error);
@@ -809,9 +850,12 @@ const promote = (GuildMember, target, role, msg) => {
       typeof target !== "string" ||
       typeof role !== "string"
     ) {
-      return msg.channel.send(
-        `**Error** Please use the format **!promote \`[tagged user]\` \`[username]\` \`[role]\`**\n Your input was:\n - \`Tagged user:\` ${GuildMember}\n - \`Target:\` ${target}\n - \`Role:\` ${role}`
-      );
+      return msg.channel.send({
+        embed: {
+          title: "**Error**",
+          description: `Please use the format **!promote \`[tagged user]\` \`[username]\` \`[role]\`**\n Your input was:\n - \`Tagged user:\` ${GuildMember}\n - \`Target:\` ${target}\n - \`Role:\` ${role}`
+        }
+      });
     }
     if (staff[target]) {
       if (!staff[target].id) {
@@ -823,11 +867,19 @@ const promote = (GuildMember, target, role, msg) => {
     }
 
     saveStaff(msg);
-    msg.channel.send(`Updated ${target}'s role to ${role} in the JSON.`);
+    msg.channel.send({
+      embed: {
+        title: "INFO",
+        description: "Updated ${target}'s role to ${role} in the JSON."
+      }
+    });
   } catch (error) {
-    msg.channel.send(
-      `**Error** something unexpected went wrong in the \`promote\` command, please contact Eagler1997`
-    );
+    msg.channel.send({
+      embed: {
+        title: "ERROR",
+        description: "something unexpected went wrong in the \`promote\` command, please contact Eagler1997"
+      }
+    });
   }
 };
 
@@ -837,7 +889,12 @@ const saveStaff = (msg) => {
   fs.writeFile("staff.json", data, (err) => {
     if (err) {
       console.log("FAILED TO WRITE TO STAFF FILE");
-      return msg.channel.send("ERROR, Failed to save staff file");
+      return msg.channel.send({
+        embed: {
+          title: "ERROR",
+          description: "Failed to save staff file"
+        }
+      });
     } else {
       console.log("Data written to file");
     }
@@ -882,7 +939,12 @@ const alertStaff = (message) => {
 
   onlinestaff.forEach((element) => {
     element[1]
-      .send(`**${message}**\n ${onlinestaff.map((el) => el[1]).join("\n")}`)
+      .send({
+        embed: {
+          title: `**${message}**`,
+          description: `${onlinestaff.map((el) => el[1]).join("\n")}`
+        }
+      })
       .catch((e) => console.error);
   });
 };
@@ -960,15 +1022,21 @@ var SetState = new Proxy(state, {
 const registerApplication = (message, args) => {
   if (votes.hasOwnProperty(args[0])) {
     //ALREADY EXISTS IGNORE THE VOTE OR RETURN AN ERROR
-    message.channel.send(
-      `**That application already exists!**\nUse: \`!app remove ${args[0]}\` to remove the application if you want to register a new one`
-    );
+    message.channel.send({
+      embed: {
+        title: `**That application already exists!**`,
+        description: `Use: \`!app remove ${args[0]}\` to remove the application if you want to register a new one`
+      }
+    });
   } else {
     votes[args[0]] = {};
     saveVotes();
-    message.channel.send(
-      `Registered a new application for **${args[0]}**\n**Admin+** will now be informed of this application and they can vote`
-    );
+    message.channel.send({
+      embed: {
+        title: `Registered a new application for **${args[0]}**`,
+        description: `**Admin+** will now be informed of this application and they can vote`
+      }
+    });
     sendMessageToAdmins(message, args);
   }
 };
@@ -990,9 +1058,12 @@ const sendMessageToAdmins = (message, args) => {
   );
   Admins.forEach((element) => {
     element
-      .send(
-        `Open application for **${args[0]}**\n**Please reply with:**\n\`Yes ${args[0]} reason to approve\`\n**OR**\n\`No ${args[0]} reason to deny\`\n**Application URL:**\n${args[1]}`
-      )
+      .send({
+        embed: {
+          title: `Open application for **${args[0]}**`,
+          description: `**Please reply with:**\n\`Yes ${args[0]} reason to approve\`\n**OR**\n\`No ${args[0]} reason to deny\`\n**Application URL:**\n${args[1]}`
+        }
+      })
       .then((msg) => {
         let collector = new Discord.MessageCollector(
           msg.channel, //CHANNEL
@@ -1004,9 +1075,12 @@ const sendMessageToAdmins = (message, args) => {
               message.content.substring(0, 3).replace(/\s/g, "").toLowerCase()
             )
           ) {
-            message.channel.send(
-              `Thank you for voting on the application of **${args[0]}**!`
-            );
+            message.channel.send({
+              embed: {
+                title: "Thank you",
+                description: `for voting on the application of **${args[0]}**!`
+              }
+            });
             votes[args[0]][message.author.username] = message.content;
             saveVotes();
             forwardMessage(message, message.content.substring(3), args[0]);
@@ -1034,12 +1108,20 @@ const forwardMessage = (message, reason, name) => {
     (c) => c.id == process.env.APPLICATION_CHANNEL
   );
 
-  applicationChannel.send(
-    `${message.author} has voted **${message.content.substring(
-      0,
-      3
-    )}** for **${name}**\n **REASON** \n${reason.trim().substring(name.length)}`
-  );
+  applicationChannel.send({
+    embed: {
+      description: `${message.author} has voted **${message.content.substring(
+        0,
+        3
+      )}** for **${name}**`,
+      fields: [
+        {
+          name: "**REASON**",
+          value: `${reason.trim().substring(name.length)}`
+        }
+      ]
+    }
+  });
 };
 
 const saveVotes = () => {
@@ -1047,7 +1129,12 @@ const saveVotes = () => {
   fs.writeFile("votes.json", data, (err) => {
     if (err) {
       console.log("FAILED TO WRITE TO STAFF FILE");
-      return msg.channel.send("ERROR, Failed to save staff file");
+      return msg.channel.send({
+        embed: {
+          title: "ERROR",
+          description: "Failed to save staff file"
+        }
+      });
     } else {
       console.log("Data written to file");
     }
